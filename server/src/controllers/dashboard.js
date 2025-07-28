@@ -3,7 +3,6 @@ const dashboard_db = require('../db/dashboard.js');
 async function username(req, res) {
     try {
         const user = req.user; 
-        console.log("User ID from request:", user);
         const results = await dashboard_db.username(user);
 
         if (results.status === "error") {

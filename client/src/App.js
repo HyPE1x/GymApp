@@ -6,6 +6,7 @@ import './App.css';
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import NewRoutine from './components/new_routine';
 
 function App() {
 
@@ -59,6 +60,8 @@ function App() {
               element={!isAuthenticated ? <Login setAuth={setAuth}/> : <Navigate to="/dashboard" />} />
             <Route path="/dashboard" 
               element={isAuthenticated ? <Dashboard setAuth={setAuth}/> : <Navigate to="/login" />} />
+            <Route path="/new_routine" 
+              element={isAuthenticated ? <NewRoutine setAuth={setAuth}/> : <Navigate to="/login" />} />
           </Routes>
         </div>
       </Router>
