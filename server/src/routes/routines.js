@@ -13,8 +13,8 @@ router.post('/create', authorization, routinesController.createRoutine);
 //DELETE a routine (Required body: routine_id, user token)
 router.delete('/delete/:routine_id', authorization, routinesController.deleteRoutine);
 
-
-
+//GET exercises (add query parameters for filtering if needed ex: /exercises?muscleGroup=chest,shoulders,triceps)
+router.get('/exercises', routinesController.getExercises);
 
 
 module.exports = router;

@@ -46,3 +46,33 @@ export const getRoutines = async() => {
       console.error("Error deleting routine:", error);
     }
   }
+
+  export const getAllExercises = async () => {
+    try {
+        const response = await fetch("http://localhost:5000/routines/exercises/", {
+            method: "GET",
+            headers: {token: localStorage.token}
+        });
+
+        const parseResponse = await response.json();
+        return parseResponse;
+
+    } catch (error) {
+        console.error("Error fetching exercises:", error);
+    }
+  }
+
+  export const getSpecificExercises = async (muscleGroups) => {
+    try {
+        const query = muscleGroups.join(",");
+        const response = await fetch(`http://localhost:5000/routines/exercises?muscleGroups=${query}`, {
+            method: "GET",
+            headers: {token: localStorage.token}
+        });
+        const parseResponse = await response.json();
+        return parseResponse;
+
+    } catch (error) {
+        console.error("Error fetching specific exercises:", error);
+    }
+  }

@@ -1,14 +1,19 @@
 import React,{Fragment, useState, useEffect} from 'react';
-import {BrowserRouter as Router, Route, Routes, Navigate} from "react-router-dom";
+import {Route, Routes, Navigate, useLocation} from "react-router-dom";
 import './App.css';
 
 //Components
-import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
 import NewRoutine from './components/new_routine';
+import RoutineDay from './components/routine_day';
+import RoutineDayEdit from './components/routine_edit';
 
 function App() {
+
+  const location = useLocation();
+  const state = location.state || {};
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,22 +54,21 @@ function App() {
 
   return (
     <Fragment>
-      <Router>
-        <div className="container">
+      <div className="container">
+        <Routes location={state.backgroundLocation || location}>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/register" element={!isAuthenticated ? <Register setAuth={setAuth} /> : <Navigate to="/dashboard" />} />
+          <Route path="/login" element={!isAuthenticated ? <Login setAuth={setAuth} /> : <Navigate to="/dashboard" />} />
+          <Route path="/dashboard" element={isAuthenticated ? <Dashboard setAuth={setAuth} /> : <Navigate to="/login" />} />
+          <Route path='/routine/:routine_id/:routine_day' element={isAuthenticated ? <RoutineDay setAuth={setAuth} /> : <Navigate to="/login" />} />
+          <Route path='/routine/:routine_id/:routine_day/edit' element={isAuthenticated ? <RoutineDayEdit setAuth={setAuth} /> : <Navigate to="/login" />} />
+        </Routes>
+        {state.backgroundLocation && (
           <Routes>
-            <Route path="/" 
-              element={<Navigate to="/login" />} />
-            <Route path="/register" 
-              element={!isAuthenticated ? <Register setAuth={setAuth}/> : <Navigate to="/dashboard" />} />
-            <Route path="/login" 
-              element={!isAuthenticated ? <Login setAuth={setAuth}/> : <Navigate to="/dashboard" />} />
-            <Route path="/dashboard" 
-              element={isAuthenticated ? <Dashboard setAuth={setAuth}/> : <Navigate to="/login" />} />
-            <Route path="/new_routine" 
-              element={isAuthenticated ? <NewRoutine setAuth={setAuth}/> : <Navigate to="/login" />} />
+            <Route path="/new_routine" element={<NewRoutine setAuth={setAuth} />} />
           </Routes>
-        </div>
-      </Router>
+        )}
+      </div>
     </Fragment>
   );
 }

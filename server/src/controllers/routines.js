@@ -61,8 +61,43 @@ async function deleteRoutine(req, res) {
     }
 }
 
+async function getExercises(req, res) {
+    try {
+        const { muscleGroups } = req.query;
+        
+        let results;
+
+        if (!muscleGroups) {
+            empty = [];
+            results = await routine_db.getExercises(empty);
+        }
+        else {
+            const muscleGroupArray = muscleGroups.split(',').map(group => group.trim());
+            results = await routine_db.getExercises(muscleGroupArray);
+        }
+
+        if(results.status === "filtered-success") {
+            res.status(200).json({ message: "Returning specified exercises", exercises: results.exercises });
+        }
+        if(results.status === "all-exercises") {
+            res.status(200).json({ message: "Returning all exercises", exercises: results.exercises });
+        }
+        if(results.status === "empty") {
+            res.status(404).json({ message: results.message });
+        }
+        if(results.status === "error") {
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        
+    }
+}
+
 module.exports = {
     getRoutines,
     createRoutine,
-    deleteRoutine
+    deleteRoutine,
+    getExercises
 };

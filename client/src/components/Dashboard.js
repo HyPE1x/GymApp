@@ -1,14 +1,22 @@
 import React, {Fragment, useState, useEffect} from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { getRoutines, deleteRoutine } from "../api/routines";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa"; // Optional: for icons
 
 const Dashboard = ({setAuth}) => {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [name, setName] = useState("");
 
   const [routines, setRoutines] = useState([]);
+
+  const [expandedRoutineId, setExpandedRoutineId] = useState(null);
+
+  const toggleExpanded = (id) => {
+    setExpandedRoutineId(prev => (prev === id ? null : id));
+  };
 
   async function getName() {
     try {
@@ -85,34 +93,72 @@ const Dashboard = ({setAuth}) => {
               </button>
             </div>
             {routines.length > 0 ? (
-              <div>
-                <h4 style={{ color: "#343a40" }}>Your Routines:</h4>
-                <ul className="list-group">
-                  {routines.map((routine) => (
-                    <li
-                      key={routine.routine_id}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      <span>
-                        <strong>{routine.routine_name}</strong> &mdash; {routine.routine_split}
-                      </span>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(routine.routine_id)}
-                      >
-                        Delete
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+            <div>
+              <h4 style={{ color: "#343a40" }}>Your Routines:</h4>
+              <div className="row">
+                {routines.map((routine) => (
+                  <div key={routine.routine_id} className="col-12 mb-3">
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h5 className="card-title mb-1">{routine.routine_name}</h5>
+                            <p className="card-text text-muted">{routine.routine_split}</p>
+                          </div>
+                          <div className="d-flex align-items-center">
+                            <button
+                              className="btn btn-outline-danger btn-sm me-2"
+                              onClick={() => handleDelete(routine.routine_id)}
+                            >
+                              Delete
+                            </button>
+                            <button
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={() => toggleExpanded(routine.routine_id)}
+                            >
+                              {expandedRoutineId === routine.routine_id ? <FaChevronUp /> : <FaChevronDown />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Expandable Days Section */}
+                        {expandedRoutineId === routine.routine_id && routine.Days && (
+                          <div className="d-flex gap-2 mt-3 px-2 overflow-auto">
+                              {routine.Days.map((day, index) => (
+                                <div
+                                  key={index}
+                                  className="border rounded text-center"
+                                  style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    flex: "0 0 auto",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "#f8f9fa",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => navigate(`/routine/${routine.routine_id}/${day.day_name}`)}
+                                >
+                                  {day.day_name}
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <div className="mt-4 text-muted">No routines found.</div>
-            )}
+            </div>
+          ) : (
+            <div className="mt-4 text-muted">No routines found.</div>
+          )}
             <div className="mt-4">
               <button
                 className="btn btn-secondary"
-                onClick={() => navigate("/new_routine")}
+                onClick={() => navigate("/new_routine", {state : { backgroundLocation: location }})}
               >
                 Create New Routine
               </button>
@@ -121,7 +167,7 @@ const Dashboard = ({setAuth}) => {
         </div>
       </div>
     </div>
-  </Fragment>
+    </Fragment>
   );
 };
 
