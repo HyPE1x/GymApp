@@ -22,7 +22,7 @@ CREATE TABLE routines(
 );
 
 CREATE TABLE routine_days(
-    day_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    day_id SERIAL PRIMARY KEY,
     routine_id INTEGER REFERENCES routines(routine_id) ON DELETE CASCADE,
     day_name VARCHAR(255) NOT NULL, -- Push, Pull, Legs, Chest/Back, Arms, etc.
     order_number INTEGER NOT NULL, -- Order of the day in the routine
@@ -38,7 +38,7 @@ CREATE TABLE exercises(
 
 CREATE TABLE routine_exercises(
     routine_exercise_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    routine_day_id uuid REFERENCES routine_days(day_id) ON DELETE CASCADE,
+    routine_day_id INTEGER REFERENCES routine_days(day_id) ON DELETE CASCADE,
     exercise_id INTEGER REFERENCES exercises(exercise_id) ON DELETE CASCADE,
     sets INTEGER NOT NULL, -- Number of sets for the exercise
     rep_range_min INTEGER NOT NULL, -- Minimum reps for the exercise

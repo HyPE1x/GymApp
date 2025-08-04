@@ -4,17 +4,28 @@ const authorization = require("../middleware/authCheck.js");
 
 const router = express.Router();
 
-//GET all routines for a user (Required body: user token)
+//GET all routines for a user (Required Header: user token)
 router.get('/', authorization, routinesController.getRoutines);
 
-//Post new routine (Required body: routine_name, routine_split, user token,)
+//POST new routine (Required body: routine_name, routine_split) (user token in header)
 router.post('/create', authorization, routinesController.createRoutine);
 
-//DELETE a routine (Required body: routine_id, user token)
+//DELETE a routine (Required body: routine_id) (user token in header)
 router.delete('/delete/:routine_id', authorization, routinesController.deleteRoutine);
 
-//GET exercises (add query parameters for filtering if needed ex: /exercises?muscleGroup=chest,shoulders,triceps)
+//GET exercises (add query parameters for filtering if needed ex: /exercises?muscleGroup=Chest,Shoulders,Triceps)
 router.get('/exercises', routinesController.getExercises);
 
+//GET exercises by ID
+router.get('/exercises/:exercise_id', routinesController.getExerciseByID);
+
+//POST exercise into a routine day (Required body: routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max) (user token in header)
+router.post('/day/add', authorization, routinesController.addExerciseToDay);
+
+//DELETE exercise from a routine day (Required body: routine_id, day_name, exercise_id) (user token in header)
+router.delete('/day/delete', authorization, routinesController.deleteExerciseFromDay);
+
+//GET routine day exercises
+router.get('/:routine_id/:day_name', routinesController.getDayExercises);
 
 module.exports = router;

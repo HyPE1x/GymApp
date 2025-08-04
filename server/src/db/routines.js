@@ -111,9 +111,110 @@ async function getExercises(muscleGroups) {
     }
 }
 
+async function getExerciseByID(exercise_id){
+    try {
+        const results = await pool.query("SELECT * FROM exercises WHERE exercise_id = $1", 
+            [exercise_id]);
+
+        return {status: "found", exercise: results.rows[0]};
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
+async function addExerciseToDay(params){
+    try {
+        const { routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max, user_id} = params;
+
+        //GET ID of the Routine Day
+        const dayResult = await pool.query("SELECT day_id FROM routine_days WHERE routine_id = $1 AND day_name = $2", 
+            [routine_id, day_name]);
+        const dayID = dayResult.rows[0]?.day_id;
+
+        //Check if user owns this Routine
+        const adminCheck = await pool.query("SELECT r.user_id FROM routine_days rd JOIN routines r ON rd.routine_id = r.routine_id WHERE rd.day_id = $1", 
+            [dayID]);
+        const idCheck = adminCheck.rows[0]?.user_id;
+        if(idCheck !== user_id){
+            return {status: "no-perms", message: "This user does not have permission to do this"};
+        }
+
+        //Check if exercise is already in routine day
+        const dupeCheck = await pool.query("SELECT * FROM routine_exercises WHERE exercise_id = $1 AND routine_day_id = $2", 
+            [exercise_id, dayID]);
+        if(dupeCheck.rows.length !== 0){
+            return {status: "dupe", message: "This exercise already exits on this day"};
+        }
+
+        //Add exercise to routine day
+        const results = await pool.query("INSERT INTO routine_exercises (routine_day_id, exercise_id, sets, rep_range_min, rep_range_max) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+            [dayID, exercise_id, sets, rep_range_min, rep_range_max]);
+
+        return {status: "added", result: results.rows};
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
+async function deleteExerciseFromDay(params) {
+    try {
+        const { routine_id, day_name, exercise_id, user_id} = params;
+
+        //get ID of the Routine Day
+        const dayResult = await pool.query("SELECT day_id FROM routine_days WHERE routine_id = $1 AND day_name = $2", 
+            [routine_id, day_name]);
+        const dayID = dayResult.rows[0]?.day_id;
+
+        //Check if user owns this Routine
+        const adminCheck = await pool.query("SELECT r.user_id FROM routine_days rd JOIN routines r ON rd.routine_id = r.routine_id WHERE rd.day_id = $1", 
+            [dayID]);
+        const idCheck = adminCheck.rows[0]?.user_id;
+        if(idCheck !== user_id){
+            return {status: "no-perms", message: "This user does not have permission to do this"};
+        }
+
+        //Remove exercise from routine_exercises
+        const deleted = await pool.query("DELETE FROM routine_exercises WHERE routine_day_id = $1 AND exercise_id = $2 RETURNING *", 
+            [dayID, exercise_id]);
+        return {status: "deleted", result: deleted.rows[0]};
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
+async function getDayExercises(params){
+    try {
+        const { routine_id, day_name } = params;
+
+        //GET ID of the Routine Day
+        const dayResult = await pool.query("SELECT day_id FROM routine_days WHERE routine_id = $1 AND day_name = $2", 
+            [routine_id, day_name]);
+        const dayID = dayResult.rows[0]?.day_id;
+
+        //Get Routine Day Exercises
+        const dayExercises = await pool.query("SELECT * FROM routine_exercises WHERE routine_day_id = $1", 
+            [dayID]);
+
+        return {status: "success", exercises: dayExercises.rows};
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
 module.exports = {
     getRoutines,
     createRoutine,
     deleteRoutine,
-    getExercises
+    getExercises,
+    getExerciseByID,
+    addExerciseToDay,
+    deleteExerciseFromDay,
+    getDayExercises
 };

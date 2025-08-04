@@ -95,9 +95,93 @@ async function getExercises(req, res) {
     }
 }
 
+async function getExerciseByID(req, res){
+    try {
+        const exercise_id = req.params.exercise_id;
+        const results = await routine_db.getExerciseByID(exercise_id);
+
+        if(results.status === "found"){
+            res.status(200).json(results.exercise);
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+async function addExerciseToDay(req, res) {
+    try {
+        const user_id = req.user;
+        const { routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max} = req.body;
+        const results = await routine_db.addExerciseToDay({ routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max, user_id});
+
+        if(results.status === "no-perms"){
+            res.status(401).json({ message: results.message });
+        }
+        if(results.status === "dupe"){
+            res.status(403).json({ message: results.message });
+        }
+        if(results.status === "added"){
+            res.status(200).json({ message: "Added Exercise", results: results.result });
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+async function deleteExerciseFromDay(req, res) {
+    try {
+        const user_id = req.user;
+        const { routine_id, day_name, exercise_id } = req.body;
+        const results = await routine_db.deleteExerciseFromDay({ routine_id, day_name, exercise_id, user_id });
+
+        if(results.status === "no-perms"){
+            res.status(401).json({ message: results.message });
+        }
+        if(results.status === "deleted"){
+            res.status(200).json({message: "Exercise Removed From Day", results: results.result})
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+async function getDayExercises(req, res){
+    try {
+        const { routine_id, day_name } = req.params;
+        const results = await routine_db.getDayExercises({ routine_id, day_name });
+        if(results.status === "success"){
+            res.status(200).json(results.exercises);
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
     getRoutines,
     createRoutine,
     deleteRoutine,
-    getExercises
+    getExercises,
+    getExerciseByID,
+    addExerciseToDay,
+    deleteExerciseFromDay,
+    getDayExercises
 };
