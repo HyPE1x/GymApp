@@ -1,6 +1,6 @@
 import React, {Fragment, useState, useEffect} from "react";
 import { useNavigate, useLocation } from "react-router-dom"
-import { getRoutines, deleteRoutine } from "../api/routines";
+import { getRoutines, deleteRoutine, setActiveRoutine } from "../api/routines";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa"; // Optional: for icons
 
 const Dashboard = ({setAuth}) => {
@@ -58,6 +58,18 @@ const Dashboard = ({setAuth}) => {
     }
   }
 
+  const handleSetActive = async (routine_id) => {
+    try {
+      const response = await setActiveRoutine(routine_id);
+      if(response.new) {
+        console.log("Routine set as Active:", response.new);
+        fetchRoutines();
+      }
+    } catch (error) {
+      console.error("Error setting routine as active:", error);
+    }
+  }
+
   const logout = async e => {
       e.preventDefault();
       try {
@@ -98,7 +110,11 @@ const Dashboard = ({setAuth}) => {
                 <div className="row">
                   {routines.map((routine) => (
                     <div key={routine.routine_id} className="col-12 mb-3">
-                      <div className="card shadow-sm">
+                      <div className="card shadow-sm" style={{
+                        backgroundColor: routine.is_active ? "#d1ecf1" : "white",
+                        border: routine.is_active ? "2px solid #0c5460" : "1px solid #dee2e6",
+                        boxShadow: routine.is_active ? "0 0 10px rgba(12, 84, 96, 0.3)" : "none",
+                      }}>
                         <div className="card-body">
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
@@ -112,6 +128,14 @@ const Dashboard = ({setAuth}) => {
                               >
                                 Delete
                               </button>
+                              {!routine.is_active && (
+                                <button
+                                  className="btn btn-outline-secondary btn-sm me-2"
+                                  onClick={() => handleSetActive(routine.routine_id)}
+                                >
+                                  Set Active
+                                </button>
+                              )}
                               <button
                                 className="btn btn-outline-secondary btn-sm"
                                 onClick={() => toggleExpanded(routine.routine_id)}

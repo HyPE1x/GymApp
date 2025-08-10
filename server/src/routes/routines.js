@@ -13,6 +13,9 @@ router.post('/create', authorization, routinesController.createRoutine);
 //DELETE a routine (Required body: routine_id) (user token in header)
 router.delete('/delete/:routine_id', authorization, routinesController.deleteRoutine);
 
+//PUT a routine as active routine and deactivate any other active routine (Required body: routine_id) (user token in header)
+router.put('/active', authorization, routinesController.setActive);
+
 //GET exercises (add query parameters for filtering if needed ex: /exercises?muscleGroup=Chest,Shoulders,Triceps)
 router.get('/exercises', routinesController.getExercises);
 

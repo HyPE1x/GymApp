@@ -47,6 +47,23 @@ export const getRoutines = async() => {
     }
   }
 
+  export const setActiveRoutine = async (routine_id) => {
+    try {
+      const body = { routine_id };
+      const response = await fetch("http://localhost:5000/routines/active/", {
+        method: "PUT",
+        headers: {"Content-Type": "application/json", token: localStorage.token},
+        body: JSON.stringify(body)
+      });
+
+      const parseResponse = await response.json();
+      return parseResponse;
+
+    } catch (error) {
+      console.error("Error setting routine as active:", error);
+    }
+  }
+
   export const getAllExercises = async () => {
     try {
         const response = await fetch("http://localhost:5000/routines/exercises/", {

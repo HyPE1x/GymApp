@@ -18,7 +18,8 @@ CREATE TABLE routines(
     routine_name VARCHAR(255) NOT NULL,
     routine_split VARCHAR(255) NOT NULL, -- PPL, Arnold, Bro Split, etc.
     user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT false
 );
 
 CREATE TABLE routine_days(
@@ -26,7 +27,8 @@ CREATE TABLE routine_days(
     routine_id INTEGER REFERENCES routines(routine_id) ON DELETE CASCADE,
     day_name VARCHAR(255) NOT NULL, -- Push, Pull, Legs, Chest/Back, Arms, etc.
     order_number INTEGER NOT NULL, -- Order of the day in the routine
-    UNIQUE (routine_id, day_name)
+    UNIQUE (routine_id, day_name),
+    is_current BOOLEAN DEFAULT false
 );
 
 CREATE TABLE exercises(

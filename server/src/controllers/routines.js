@@ -61,6 +61,25 @@ async function deleteRoutine(req, res) {
     }
 }
 
+async function setActive(req, res) {
+    try {
+        const user_id = req.user;
+        const routine_id = req.body.routine_id;
+        const results = await routine_db.setActive({ routine_id, user_id });
+
+        if(results.status === "updated") {
+            res.status(200).json({ message: "Routine set as Active", new: results.new, old: results.old})
+        }
+        if(results.status === "error") {
+             res.status(500).json({ message: "Database error", error: results.message });
+        }
+
+    } catch (error) {
+        console.error('Error deleting routine:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 async function getExercises(req, res) {
     try {
         const { muscleGroups } = req.query;
@@ -132,7 +151,7 @@ async function addExerciseToDay(req, res) {
         }
 
     } catch (error) {
-        console.error('Error fetching exercises:', error);
+        console.error('Error adding exercise:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -154,7 +173,7 @@ async function deleteExerciseFromDay(req, res) {
         }
 
     } catch (error) {
-        console.error('Error fetching exercises:', error);
+        console.error('Error deleting exercise:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -170,7 +189,7 @@ async function getDayExercises(req, res){
             res.status(500).json({ message: "Database error", error: results.message });
         }
     } catch (error) {
-        console.error('Error fetching exercises:', error);
+        console.error('Error fetching day exercises:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -179,6 +198,7 @@ module.exports = {
     getRoutines,
     createRoutine,
     deleteRoutine,
+    setActive,
     getExercises,
     getExerciseByID,
     addExerciseToDay,

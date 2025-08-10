@@ -3,7 +3,7 @@ const pool = require('../../db.js');
 async function getRoutines(user_id) {
     try {
         // Fetch all routines for the user
-        const results = await pool.query("SELECT * FROM routines WHERE user_id = $1", [user_id]);
+        const results = await pool.query("SELECT * FROM routines WHERE user_id = $1 ORDER BY is_active DESC, created_at ASC", [user_id]);
 
         if (results.rowCount === 0) {
             return { status: "empty", message: "No routines found for this user." };
@@ -29,9 +29,10 @@ async function createRoutine(params){
         const { routine_name, routine_split, user_id } = params;
 
         // Insert new routine into database
-        const newRoutineResult = await pool.query("INSERT INTO routines (routine_name, routine_split, user_id) VALUES ($1, $2, $3) RETURNING *",[
-            routine_name, routine_split, user_id
-        ]);
+        const newRoutineResult = await pool.query(`WITH existing_count AS (SELECT COUNT(*) AS cnt FROM routines WHERE user_id = $3) 
+            INSERT INTO routines (routine_name, routine_split, user_id, is_active) 
+            VALUES ($1, $2, $3, CASE WHEN (SELECT cnt FROM existing_count) = 0 THEN true ELSE false END) RETURNING *`,
+            [routine_name, routine_split, user_id]);
         if (newRoutineResult.rowCount === 0) {
             return { status: "error", message: "Failed to create routine." };
         }
@@ -88,6 +89,30 @@ async function deleteRoutine(params) {
         console.error("Database Error:", error.message);
         return {status: "error", message: error.message };
         
+    }
+}
+
+async function setActive(params) {
+    try {
+        const { routine_id, user_id } = params;
+
+        //check if user is owner of routine
+        const checkOwnership = await pool.query("SELECT * FROM routines WHERE routine_id = $1 AND user_id = $2", [routine_id, user_id]);
+        if (checkOwnership.rows.length === 0) {
+            return { status: "no-perms", message: "You do not have permission to delete this routine." };
+        }
+
+        //change user's current active routine to false
+        const oldActive = await pool.query("UPDATE routines SET is_active = false WHERE user_id = $1 AND is_active = true RETURNING *", [user_id]);
+
+        //set selected routine as active
+        const newActive = await pool.query("UPDATE routines SET is_active = true WHERE routine_id = $1 RETURNING *", [routine_id]);
+
+        return {status: "updated", new: newActive.rows, old: oldActive.rows};
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
     }
 }
 
@@ -212,6 +237,7 @@ module.exports = {
     getRoutines,
     createRoutine,
     deleteRoutine,
+    setActive,
     getExercises,
     getExerciseByID,
     addExerciseToDay,
