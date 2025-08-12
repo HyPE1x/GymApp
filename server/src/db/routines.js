@@ -52,9 +52,16 @@ async function createRoutine(params){
         }
         dayNumber = 1;
         for (const day of days) {
-            const dayResult = await pool.query("INSERT INTO routine_days (routine_id, day_name, order_number) VALUES ($1, $2, $3)", 
+            if(dayNumber === 1){
+                const dayResult = await pool.query("INSERT INTO routine_days (routine_id, day_name, order_number, is_current) VALUES ($1, $2, $3, true)", 
                 [newRoutine.routine_id, day, dayNumber]);
-            if (dayResult.rowCount > 0) {
+
+                newRoutine.Days.push(dayResult.rows[0]);
+            }
+            else{
+                const dayResult = await pool.query("INSERT INTO routine_days (routine_id, day_name, order_number, is_current) VALUES ($1, $2, $3, false)", 
+                [newRoutine.routine_id, day, dayNumber]);
+
                 newRoutine.Days.push(dayResult.rows[0]);
             }
             dayNumber++;
@@ -184,6 +191,47 @@ async function addExerciseToDay(params){
     }
 }
 
+async function setCurrentDay(params) {
+    try {
+        const { routine_id, user_id } = params;
+
+        //check if user is owner of routine
+        const checkOwnership = await pool.query("SELECT * FROM routines WHERE routine_id = $1 AND user_id = $2", [routine_id, user_id]);
+        if (checkOwnership.rows.length === 0) {
+            return { status: "no-perms", message: "You do not have permission to delete this routine." };
+        }
+
+        //Set current day to false
+        const currDay = await pool.query("UPDATE routine_days SET is_current = false WHERE routine_id = $1 AND is_current = true RETURNING *", [routine_id]);
+
+        //set next day to true
+        const prevNumber = currDay.rows[0].order_number;
+        const nextDay = await pool.query(`UPDATE routine_days SET is_current = true WHERE routine_id = $1 AND order_number = COALESCE(
+            (SELECT order_number FROM routine_days WHERE routine_id = $1 AND order_number > $2 ORDER BY order_number ASC LIMIT 1), 
+            (SELECT MIN(order_number) FROM routine_days WHERE routine_id = $1)) RETURNING *`, [routine_id, prevNumber]);
+        
+        return {status: "updated", new: nextDay.rows[0], old: currDay.rows[0]};
+        
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
+async function getRoutineDay(params) {
+    try {
+        const {routine_id, day_name } = params;
+
+        const day = await pool.query('SELECT * FROM routine_days WHERE routine_id = $1 AND day_name = $2', [routine_id, day_name]);
+
+        return {status: "found", day: day.rows[0]}
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
 async function deleteExerciseFromDay(params) {
     try {
         const { routine_id, day_name, exercise_id, user_id} = params;
@@ -241,6 +289,8 @@ module.exports = {
     getExercises,
     getExerciseByID,
     addExerciseToDay,
+    setCurrentDay,
+    getRoutineDay,
     deleteExerciseFromDay,
     getDayExercises
 };

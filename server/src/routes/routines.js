@@ -25,6 +25,12 @@ router.get('/exercises/:exercise_id', routinesController.getExerciseByID);
 //POST exercise into a routine day (Required body: routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max) (user token in header)
 router.post('/day/add', authorization, routinesController.addExerciseToDay);
 
+//GET routine day (Required body: routine_id, day_name)
+router.get('/day/:routine_id/:day_name', routinesController.getRoutineDay);
+
+//PUT the next routine day as the current day (Required body: routine_id) (user token in header)
+router.put('/day/current', authorization, routinesController.setCurrentDay);
+
 //DELETE exercise from a routine day (Required body: routine_id, day_name, exercise_id) (user token in header)
 router.delete('/day/delete', authorization, routinesController.deleteExerciseFromDay);
 

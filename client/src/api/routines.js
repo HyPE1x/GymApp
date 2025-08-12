@@ -124,6 +124,38 @@ export const getRoutines = async() => {
     }
   }
 
+  export const setCurrentDay = async (routine_id) => {
+    try {
+      const body = { routine_id };
+      const response = await fetch("http://localhost:5000/routines/day/current/", {
+        method: "PUT",
+        headers: {"Content-Type": "application/json", token: localStorage.token},
+        body: JSON.stringify(body)
+      });
+
+      const parseResponse = await response.json();
+      return parseResponse;
+      
+    } catch (error) {
+      console.error("Error setting next day to current:", error);
+    }
+  }
+
+  export const getRoutineDay = async (routine_id, day_name) => {
+    try {
+      const response = await fetch(`http://localhost:5000/routines/day/${routine_id}/${day_name}`, {
+            method: "GET",
+            headers: {token: localStorage.token}
+      });
+
+      const parseResponse = await response.json();
+      return parseResponse;
+
+    } catch (error) {
+      console.error("Error getting routine day:", error);
+    }
+  }
+
   export const deleteExerciseFromDay = async (routine_id, day_name, exercise_id) => {
     try {
       const body = { routine_id, day_name, exercise_id };

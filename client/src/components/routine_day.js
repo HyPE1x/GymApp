@@ -1,6 +1,6 @@
 import React, {Fragment, useState, useEffect, useCallback} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDayExercises} from "../api/routines";
+import { getDayExercises, getRoutineDay, setCurrentDay} from "../api/routines";
 import { generateTips } from "../helper/tips";
 
 const RoutineDay = ({ setAuth }) => {
@@ -11,9 +11,11 @@ const RoutineDay = ({ setAuth }) => {
 
     const [tips, setTips] = useState([]);
 
+    const[isCurrent, setIsCurrent] = useState(false);
+
     const fetchExercises = useCallback(async () => {
         try {
-            const response = await getDayExercises(routine_id, routine_day)
+            const response = await getDayExercises(routine_id, routine_day);
             setDayExercises(response || []);
 
         } catch (error) {
@@ -30,9 +32,31 @@ const RoutineDay = ({ setAuth }) => {
         }
     }
 
+    const handleIsCurrentDay = async () => {
+        try {
+            const response = await getRoutineDay(routine_id, routine_day);
+            setIsCurrent(response.is_current);
+        } catch (error) {
+            console.error("Error getting current day:", error);
+        }
+    }
+
+    const handleFinishDay = async () => {
+        try {
+            const result = setCurrentDay(routine_id);
+            console.log("Day is finished. Next day is:", result.new);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error setting current day:", error);
+        }
+    }
+
+    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchExercises();
+        handleIsCurrentDay();
     }, [fetchExercises]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,6 +112,14 @@ const RoutineDay = ({ setAuth }) => {
                                     <p className="text-muted">No exercises selected</p>
                                 )}
                             </div>
+                            {isCurrent && (
+                                <button
+                                    className="btn btn-success fw-bold"
+                                    onClick={handleFinishDay}
+                                >
+                                    ✅ Finish Day
+                                </button>
+                            )}
                             {tips.length > 0 && (
                                 <div style={{ marginTop: '20px' }}>
                                     <h5 className="mb-2" style={{ color: "#343a40", fontSize: "1.5rem" }}>Selection Tips</h5>

@@ -159,7 +159,7 @@ const Dashboard = ({setAuth}) => {
                                       display: "flex",
                                       alignItems: "center",
                                       justifyContent: "center",
-                                      backgroundColor: "#f8f9fa",
+                                      backgroundColor: day.is_current && routine.is_active? "#90EE90" : "#eeeeeeff",
                                       fontWeight: "500",
                                       cursor: "pointer",
                                     }}

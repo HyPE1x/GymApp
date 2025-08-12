@@ -156,6 +156,42 @@ async function addExerciseToDay(req, res) {
     }
 }
 
+async function setCurrentDay(req, res) {
+    try {
+        const user_id = req.user;
+        const routine_id = req.body.routine_id;
+        const results = await routine_db.setCurrentDay({ routine_id, user_id });
+
+        if(results.status === "updated") {
+            res.status(200).json({ message: "Routine day set as Current", new: results.new, old: results.old})
+        }
+        if(results.status === "error") {
+             res.status(500).json({ message: "Database error", error: results.message });
+        }
+    } catch (error) {
+        console.error('Error setting day as current:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+async function getRoutineDay(req, res) {
+    try {
+        const routine_id = req.params.routine_id;
+        const day_name = req.params.day_name;
+        const results = await routine_db.getRoutineDay({ routine_id, day_name });
+
+        if(results.status === "found") {
+            res.status(200).json(results.day);
+        }
+        if(results.status === "error") {
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+    } catch (error) {
+        console.error('Error setting day as current:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 async function deleteExerciseFromDay(req, res) {
     try {
         const user_id = req.user;
@@ -202,6 +238,8 @@ module.exports = {
     getExercises,
     getExerciseByID,
     addExerciseToDay,
+    setCurrentDay,
+    getRoutineDay,
     deleteExerciseFromDay,
     getDayExercises
 };
