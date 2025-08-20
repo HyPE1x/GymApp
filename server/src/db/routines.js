@@ -281,6 +281,25 @@ async function getDayExercises(params){
     }
 }
 
+async function getSpecificDayExercise(params){
+    try {
+        const { routine_id, day_name, exercise_id } = params; 
+        //GET ID of the Routine Day
+        const dayResult = await pool.query("SELECT day_id FROM routine_days WHERE routine_id = $1 AND day_name = $2", 
+            [routine_id, day_name]);
+        const dayID = dayResult.rows[0]?.day_id;
+
+        //Get Specific Routine Day Exercise
+        const dayExercise = await pool.query("SELECT * FROM routine_exercises WHERE routine_day_id = $1 AND exercise_id = $2", 
+            [dayID, exercise_id]);
+
+        return {status: "success", exercise: dayExercise.rows[0]};
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
 module.exports = {
     getRoutines,
     createRoutine,
@@ -292,5 +311,6 @@ module.exports = {
     setCurrentDay,
     getRoutineDay,
     deleteExerciseFromDay,
-    getDayExercises
+    getDayExercises,
+    getSpecificDayExercise
 };

@@ -230,6 +230,24 @@ async function getDayExercises(req, res){
     }
 }
 
+async function getSpecificDayExercise(req, res) {
+    try {
+        const{ routine_id, day_name, exercise_id } = req.params;
+        const results = await routine_db.getSpecificDayExercise({ routine_id, day_name, exercise_id });
+
+        if(results.status === "success"){
+            res.status(200).json(results.exercise);
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+
+    } catch (error) {
+        console.error('Error fetching day exercise:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
     getRoutines,
     createRoutine,
@@ -241,5 +259,6 @@ module.exports = {
     setCurrentDay,
     getRoutineDay,
     deleteExerciseFromDay,
-    getDayExercises
+    getDayExercises,
+    getSpecificDayExercise
 };

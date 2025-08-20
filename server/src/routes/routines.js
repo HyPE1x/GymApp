@@ -37,4 +37,7 @@ router.delete('/day/delete', authorization, routinesController.deleteExerciseFro
 //GET routine day exercises
 router.get('/:routine_id/:day_name', routinesController.getDayExercises);
 
+//GET specific routine day exercise
+router.get('/:routine_id/:day_name/:exercise_id', routinesController.getSpecificDayExercise);
+
 module.exports = router;

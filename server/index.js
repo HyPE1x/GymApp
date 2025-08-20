@@ -10,6 +10,7 @@ app.use(express.json());
 app.use('/auth', require('./src/routes/auth.js')); //authentication (login, register)
 app.use('/dashboard', require('./src/routes/dashboard.js')); //dashboard related routes
 app.use('/routines', require('./src/routes/routines.js')); //routines related routes
+app.use('/logging', require('./src/routes/logging.js')); //workout log related routes
 
 
 app.listen(5000, () => {

@@ -1,27 +1,42 @@
 import React, {Fragment, useState, useEffect, useCallback} from "react";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getDayExercises, getRoutineDay, setCurrentDay} from "../api/routines";
+import { createSession, getSessionsByDay, endSession, getSetsInSession } from "../api/logging";
 import { generateTips } from "../helper/tips";
 
 const RoutineDay = ({ setAuth }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { routine_id, routine_day } = useParams();
-
     const [dayExercises, setDayExercises] = useState([]);
-
     const [tips, setTips] = useState([]);
-
-    const[isCurrent, setIsCurrent] = useState(false);
+    const [isCurrent, setIsCurrent] = useState(false);
+    const [routineDayID, setRoutineDayID] = useState(null);
+    const [started, setStarted] = useState(false);
+    const [sessionID, setSessionID] = useState(null);
 
     const fetchExercises = useCallback(async () => {
         try {
             const response = await getDayExercises(routine_id, routine_day);
-            setDayExercises(response || []);
+            
+            //Check if exercises have been completed in this session
+            const completedSets = await getSetsInSession(sessionID);
 
+            const exercisesWithCompletion = response.map(exercise => {
+                const isCompleted = completedSets.some(set => set.exercise_id === exercise.exercise_id);
+                return {
+                    ...exercise,
+                    completed: isCompleted, 
+                };
+            });
+            
+            //console.log(exercisesWithCompletion);
+
+            setDayExercises(exercisesWithCompletion || []);
         } catch (error) {
             console.error("Error fetching exercises:", error);
         }
-    }, [routine_id, routine_day])
+    }, [routine_id, routine_day, sessionID])
 
     const fetchTips = async () => {
         try {
@@ -32,19 +47,54 @@ const RoutineDay = ({ setAuth }) => {
         }
     }
 
-    const handleIsCurrentDay = async () => {
+    const handleDayInfo = async () => {
         try {
             const response = await getRoutineDay(routine_id, routine_day);
             setIsCurrent(response.is_current);
+            setRoutineDayID(response.day_id);
+
+            await checkIfActiveSession(response.day_id);
+            
         } catch (error) {
             console.error("Error getting current day:", error);
         }
     }
 
+    const checkIfActiveSession = async (day_id) => {
+        const sessions = await getSessionsByDay(day_id);
+        if (!sessions || sessions.length === 0) {
+            setStarted(false);
+            return;
+        }
+
+        const latest = [...sessions].sort(
+            (a, b) => new Date(b.workout_date) - new Date(a.workout_date)
+        )[0];
+
+        setStarted(latest.is_active === true);
+        setSessionID(latest.session_id);
+    }
+
+    const handleStartDay = async () => {
+        try {
+            const result = await createSession(routineDayID)
+            console.log("Session Created. Day Started:", result)
+            setStarted(true);
+            setSessionID(result.session_id)
+        } catch (error) {
+            console.error("Error starting workout session:", error);
+        }
+    }
+
     const handleFinishDay = async () => {
         try {
-            const result = setCurrentDay(routine_id);
-            console.log("Day is finished. Next day is:", result.new);
+            const result = await setCurrentDay(routine_id);
+            console.log(sessionID);
+            const end = await endSession(sessionID)
+            setStarted(false);
+            setSessionID(null);
+            console.log("Day is finished:", end.session);
+            console.log("Next day is:", result.new)
             window.location.reload();
         } catch (error) {
             console.error("Error setting current day:", error);
@@ -55,9 +105,10 @@ const RoutineDay = ({ setAuth }) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
+        handleDayInfo();
+        if (!sessionID) return;
         fetchExercises();
-        handleIsCurrentDay();
-    }, [fetchExercises]);
+    }, [fetchExercises, sessionID, location]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
@@ -92,11 +143,29 @@ const RoutineDay = ({ setAuth }) => {
                                 </div>
                             </div>
                             <div>
+                                {isCurrent && !started && (
+                                <button
+                                    className="btn btn-success fw-bold"
+                                    onClick={handleStartDay}
+                                >
+                                    Start Day
+                                </button>
+                                )}
+                            </div>
+                            <div>
                                 <h5 className="mb-2" style={{ color: "#343a40", fontSize: "1.5rem" }}>Your Exercises</h5>
                                 {dayExercises.length > 0 ? (
                                     dayExercises.map((exercise) => (
-                                        <div key={exercise.exercise_id} className="mb-3 p-3 bg-white shadow-sm rounded">
-                                            <h5 className="mb-1">{exercise.exercise_name}</h5>
+                                        <div key={exercise.exercise_id} className="mb-3 p-3 bg-white shadow-sm rounded"
+                                            style={{ cursor: started && !exercise.completed ? "pointer" : "default" }}
+                                            onClick={started && !exercise.completed ? () => navigate(`/routine/${routine_id}/${routine_day}/${sessionID}/${exercise.exercise_id}`, {state : { backgroundLocation: location }}) : undefined }
+                                        >
+                                            <h5 className="mb-1">
+                                                {exercise.exercise_name}{" "}
+                                                {exercise.completed && started && (
+                                                    <span style={{ color: "green" }}>✔️</span>
+                                                )}
+                                            </h5>
                                             <p className="mb-0 text-muted">
                                                 {exercise.muscle_group} | {exercise.muscle_head}
                                             </p>
@@ -112,7 +181,7 @@ const RoutineDay = ({ setAuth }) => {
                                     <p className="text-muted">No exercises selected</p>
                                 )}
                             </div>
-                            {isCurrent && (
+                            {isCurrent && started && (
                                 <button
                                     className="btn btn-success fw-bold"
                                     onClick={handleFinishDay}

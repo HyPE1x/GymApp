@@ -22,10 +22,10 @@ export const getRoutines = async() => {
       const response = await fetch("http://localhost:5000/routines/", {
         method: "GET",
         headers: {token: localStorage.token}
-    });
+      });
 
-    const parseResponse = await response.json();
-    return parseResponse;
+      const parseResponse = await response.json();
+      return parseResponse;
 
     } catch (error) {
       console.error(error.message);
@@ -203,5 +203,20 @@ export const getRoutines = async() => {
       return enrichedExercises;
     } catch (error) {
       console.error("Error getting day exercises:", error);
+    }
+  }
+
+  export const getSpecificDayExercise = async (routine_id, day_name, exercise_id) => {
+    try {
+      const dayNameEncoded = encodeURIComponent(day_name);
+      const response = await fetch(`http://localhost:5000/routines/${routine_id}/${dayNameEncoded}/${exercise_id}`, {
+            method: "GET",
+            headers: {token: localStorage.token}
+      });
+
+      const parseResponse = await response.json();
+      return parseResponse;
+    } catch (error) {
+      console.error("Error getting day exercise:", error);
     }
   }

@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS routines CASCADE;
 DROP TABLE IF EXISTS routine_days CASCADE;
 DROP TABLE IF EXISTS exercises CASCADE;
 DROP TABLE IF EXISTS routine_exercises CASCADE;
+DROP TABLE IF EXISTS workout_session CASCADE;
+DROP TABLE IF EXISTS workout_sets CASCADE;
 
 CREATE TABLE users(
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -39,12 +41,30 @@ CREATE TABLE exercises(
 );
 
 CREATE TABLE routine_exercises(
-    routine_exercise_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    routine_exercise_id SERIAL PRIMARY KEY,
     routine_day_id INTEGER REFERENCES routine_days(day_id) ON DELETE CASCADE,
     exercise_id INTEGER REFERENCES exercises(exercise_id) ON DELETE CASCADE,
     sets INTEGER NOT NULL, -- Number of sets for the exercise
     rep_range_min INTEGER NOT NULL, -- Minimum reps for the exercise
     rep_range_max INTEGER NOT NULL -- Maximum reps for the exercise
+);
+
+CREATE TABLE workout_session(
+    session_id SERIAL PRIMARY KEY,
+    routine_day_id INTEGER REFERENCES routine_days(day_id) ON DELETE CASCADE,
+    user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
+    workout_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT false
+);
+
+CREATE TABLE workout_sets(
+    set_id SERIAL PRIMARY KEY,
+    session_id INTEGER REFERENCES workout_session(session_id) ON DELETE CASCADE,
+    routine_exercise_id INTEGER REFERENCES routine_exercises(routine_exercise_id) ON DELETE CASCADE,
+    exercise_id INTEGER REFERENCES exercises(exercise_id) ON DELETE CASCADE,
+    set_number INTEGER NOT NULL,
+    reps INTEGER NOT NULL,
+    weight DECIMAL(5,2)
 );
 
 INSERT INTO exercises (exercise_name, muscle_group, muscle_head) VALUES
@@ -120,6 +140,7 @@ INSERT INTO exercises (exercise_name, muscle_group, muscle_head) VALUES
 ('Bayesian Cable Curl', 'Biceps', 'Long Head'),
 ('Hammer Curl', 'Biceps', 'Brachialis and Brachioradialis'),
 ('Preacher Hammer Curl', 'Biceps', 'Brachialis and Brachioradialis'),
+('Rope Hammer Curl', 'Biceps', 'Brachialis and Brachioradialis'),
 --Quads
 ('Barbell Back Squat', 'Quads', 'Compound'),
 ('Barbell Front Squat', 'Quads', 'Compound'),

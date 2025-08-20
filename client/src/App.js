@@ -10,6 +10,7 @@ import NewRoutine from './components/new_routine';
 import RoutineDay from './components/routine_day';
 import RoutineDayEdit from './components/routine_edit';
 import RoutineEditAdd from './components/routine_edit_add';
+import LogExercise from './components/log_exercise';
 
 function App() {
 
@@ -68,6 +69,7 @@ function App() {
           <Routes>
             <Route path="/new_routine" element={<NewRoutine setAuth={setAuth} />} />
             <Route path='/routine/:routine_id/:routine_day/edit/add/:exercise_id/' element={<RoutineEditAdd setAuth={setAuth} />} />
+            <Route path='/routine/:routine_id/:routine_day/:session_id/:exercise_id/' element={<LogExercise setAuth={setAuth} />} />
           </Routes>
         )}
       </div>

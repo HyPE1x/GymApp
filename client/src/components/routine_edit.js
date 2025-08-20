@@ -30,7 +30,6 @@ const RoutineDayEdit = ({ setAuth }) => {
         try {
             const exercises = await getSpecificExercises(muscleGroups);
             setExercises(exercises.exercises);
-            console.log("Fetched exercises:", exercises);
         } catch (error) {
             console.error("Error fetching exercises:", error);
         }
