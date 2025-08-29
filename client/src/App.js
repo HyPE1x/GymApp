@@ -11,6 +11,8 @@ import RoutineDay from './components/routine_day';
 import RoutineDayEdit from './components/routine_edit';
 import RoutineEditAdd from './components/routine_edit_add';
 import LogExercise from './components/log_exercise';
+import Stats from './components/stats';
+import SpecificStat from './components/specific_stat';
 
 function App() {
 
@@ -64,12 +66,14 @@ function App() {
           <Route path="/dashboard" element={isAuthenticated ? <Dashboard setAuth={setAuth} /> : <Navigate to="/login" />} />
           <Route path='/routine/:routine_id/:routine_day' element={isAuthenticated ? <RoutineDay setAuth={setAuth} /> : <Navigate to="/login" />} />
           <Route path='/routine/:routine_id/:routine_day/edit' element={isAuthenticated ? <RoutineDayEdit setAuth={setAuth} /> : <Navigate to="/login" />} />
+          <Route path="/stats" element={isAuthenticated ? <Stats setAuth={setAuth} /> : <Navigate to="/login" />} />
         </Routes>
         {state.backgroundLocation && (
           <Routes>
             <Route path="/new_routine" element={<NewRoutine setAuth={setAuth} />} />
             <Route path='/routine/:routine_id/:routine_day/edit/add/:exercise_id/' element={<RoutineEditAdd setAuth={setAuth} />} />
             <Route path='/routine/:routine_id/:routine_day/:session_id/:exercise_id/' element={<LogExercise setAuth={setAuth} />} />
+            <Route path="/stats/:exercise_id" element={isAuthenticated ? <SpecificStat setAuth={setAuth} /> : <Navigate to="/login" />} />
           </Routes>
         )}
       </div>

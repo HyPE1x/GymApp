@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { newRoutine } from "../api/routines";
 import { useNavigate } from 'react-router-dom';
+import { FaTimes } from "react-icons/fa";
 
 const NewRoutine = ({setAuth}) => {
 
@@ -47,7 +48,7 @@ const NewRoutine = ({setAuth}) => {
                     style={{ top: "10px", right: "10px" }}
                     onClick={() => navigate("/dashboard")}
                 >
-                    &times;
+                    <FaTimes size={15}/>
                 </button>
                 <h1 className="text-center mb-4" style={{ color: "#343a40" }}>New Routine</h1>
                 <form onSubmit={onsubmitForm}>

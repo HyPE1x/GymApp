@@ -20,6 +20,10 @@ const RoutineDay = ({ setAuth }) => {
             const response = await getDayExercises(routine_id, routine_day);
             
             //Check if exercises have been completed in this session
+            if (!sessionID) {
+                setDayExercises(response || []);
+                return;
+            }
             const completedSets = await getSetsInSession(sessionID);
 
             const exercisesWithCompletion = response.map(exercise => {
@@ -106,7 +110,7 @@ const RoutineDay = ({ setAuth }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         handleDayInfo();
-        if (!sessionID) return;
+        //if (!sessionID) return;
         fetchExercises();
     }, [fetchExercises, sessionID, location]);
 

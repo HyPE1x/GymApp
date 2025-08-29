@@ -22,8 +22,11 @@ router.post('/set/create', loggingController.createSet);
 //GET sets by session_id
 router.get('/set/session/:session_id', loggingController.getSetsInSession);
 
-//GET sets by exercise_id
-router.get('/set/exercise/:exercise_id', loggingController.getSetsbyExercise);
+//GET user sets by exercise_id (user token in header)
+router.get('/set/exercise/:exercise_id', authorization, loggingController.getSetsByExercise);
+
+//GET all exercises that a user has logged sets for (user token in header)
+router.get('/set/exercises', authorization, loggingController.getAllExercisesForUserSets);
 
 //GET set by set_id
 router.get('/set/:set_id', loggingController.getSetByID);

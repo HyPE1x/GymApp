@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import { addExerciseToDay, getExerciseByID } from "../api/routines";
+import { FaTimes } from "react-icons/fa";
 
 const RoutineEditAdd = ({setAuth}) => {
     
@@ -54,7 +55,7 @@ const RoutineEditAdd = ({setAuth}) => {
                     style={{ top: "10px", right: "10px" }}
                     onClick={() => navigate(`/routine/${routine_id}/${routine_day}/edit`)}
                 >
-                    &times;
+                    <FaTimes size={15}/>
                 </button>
                 <h1 className="text-center mb-4" style={{ color: "#343a40" }}>Add {exerciseName}</h1>
                 <form onSubmit={onSubmitForm}>

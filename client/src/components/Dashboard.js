@@ -1,7 +1,7 @@
 import React, {Fragment, useState, useEffect} from "react";
 import { useNavigate, useLocation } from "react-router-dom"
 import { getRoutines, deleteRoutine, setActiveRoutine } from "../api/routines";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa"; // Optional: for icons
+import { FaChevronDown, FaChevronUp, FaChartBar, FaPlus } from "react-icons/fa"; 
 
 const Dashboard = ({setAuth}) => {
 
@@ -179,13 +179,20 @@ const Dashboard = ({setAuth}) => {
             ) : (
               <div className="mt-4 text-muted">No routines found.</div>
             )}
-              <div className="mt-4">
+              <div className="mt-4 d-flex gap-3">
                 <button
                   className="btn btn-secondary"
                   onClick={() => navigate("/new_routine", {state : { backgroundLocation: location }})}
                 >
-                  Create New Routine
+                   <FaPlus/> Create New Routine
                 </button>
+
+                <button
+                    className="btn btn-outline-dark"
+                    onClick={() => navigate("/stats")}
+                  >
+                    <FaChartBar/> View Stats
+                  </button>
               </div>
             </div>
           </div>

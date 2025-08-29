@@ -94,11 +94,11 @@ async function getSetsInSession(param) {
     }
 }
 
-async function getSetsbyExercise(param) {
+async function getSetsByExercise(params) {
     try {
-        const exercise_id = param;
-
-        const sets = await pool.query("SELECT * FROM workout_sets WHERE exercise_id = $1", [exercise_id]);
+        const { exercise_id, user_id } = params;
+        const sets = await pool.query("SELECT * FROM workout_sets ws JOIN workout_session s on ws.session_id = s.session_id WHERE exercise_id = $1 AND user_id = $2 ORDER BY s.workout_date DESC, ws.set_number ASC", 
+            [exercise_id, user_id]);
 
         return {status: "found", sets: sets.rows};
     } catch (error) {
@@ -120,6 +120,23 @@ async function getSetByID(param) {
     }
 }
 
+async function getAllExercisesForUserSets(param) {
+    try {
+        const user_id = param;
+        const exerciseIDs = await pool.query("SELECT DISTINCT exercise_id FROM workout_sets ws JOIN workout_session s on ws.session_id = s.session_id WHERE s.user_id = $1", 
+            [user_id]);
+
+        const exercises = await pool.query("Select * FROM exercises WHERE exercise_id = ANY($1)", 
+            [exerciseIDs.rows.map(row => row.exercise_id)]);
+        
+        return {status: "found", exercises: exercises.rows};
+
+    } catch (error) {
+        console.error("Database Error:", error.message);
+        return {status: "error", message: error.message };
+    }
+}
+
 module.exports = {
     createSession,
     getSession,
@@ -127,6 +144,7 @@ module.exports = {
     endSession,
     createSet,
     getSetsInSession,
-    getSetsbyExercise,
-    getSetByID
+    getSetsByExercise,
+    getSetByID,
+    getAllExercisesForUserSets
 };

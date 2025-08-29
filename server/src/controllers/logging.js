@@ -110,10 +110,11 @@ async function getSetsInSession(req, res) {
     }
 }
 
-async function getSetsbyExercise(req, res) {
+async function getSetsByExercise(req, res) {
     try {
         const exercise_id = req.params.exercise_id;
-        const results = await logging_db.getSetsInSession(exercise_id)
+        const user_id = req.user;
+        const results = await logging_db.getSetsByExercise({ exercise_id, user_id })
 
         if(results.status === "found"){
             res.status(200).json(results.sets);
@@ -130,7 +131,7 @@ async function getSetsbyExercise(req, res) {
 async function getSetByID(req, res) {
     try {
         const set_id = req.params.set_id;
-        const results = await logging_db.getSetsInSession(set_id)
+        const results = await logging_db.getSetByID(set_id)
 
         if(results.status === "found"){
             res.status(200).json(results.set);
@@ -144,6 +145,25 @@ async function getSetByID(req, res) {
     }
 }
 
+async function getAllExercisesForUserSets(req, res) {
+    try {
+        const user_id = req.user;
+        const results = await logging_db.getAllExercisesForUserSets(user_id);
+
+        if(results.status === "found"){
+            res.status(200).json(results.exercises);
+        }
+        if(results.status === "error"){
+            res.status(500).json({ message: "Database error", error: results.message });
+        }
+
+        
+    } catch (error) {
+        console.error('Error getting IDs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
     createSession,
     getSession,
@@ -151,6 +171,7 @@ module.exports = {
     endSession,
     createSet,
     getSetsInSession,
-    getSetsbyExercise,
-    getSetByID
+    getSetsByExercise,
+    getSetByID,
+    getAllExercisesForUserSets
 };

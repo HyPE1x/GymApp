@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import { createSet } from "../api/logging";
 import { getExerciseByID, getSpecificDayExercise } from "../api/routines";
+import { FaTimes } from "react-icons/fa";
 
 const LogExercise = ({setAuth}) => {
 
@@ -71,7 +72,7 @@ const LogExercise = ({setAuth}) => {
                     style={{ top: "10px", right: "10px" }}
                     onClick={() => navigate(`/routine/${routine_id}/${routine_day}`)}
                 >
-                    &times;
+                    <FaTimes size={15}/>
                 </button>
                 <h1>{ExerciseName}</h1>
 

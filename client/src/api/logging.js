@@ -121,3 +121,18 @@ export const getSetByID = async (set_id) => {
         console.error("Error getting sets:", error);
     }
 }
+
+export const getAllExercisesForUserSets = async () => {
+    try {
+        const response = await fetch(`http://localhost:5000/logging/set/exercises`, {
+            method: "GET",
+            headers: {token: localStorage.token}
+        });
+
+      const parseResponse = await response.json();
+      return parseResponse;
+
+    } catch (error) {
+        console.error("Error getting exercises:", error);
+    }
+}
