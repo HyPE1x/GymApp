@@ -1,6 +1,8 @@
 import React, {Fragment, useState} from "react";
 //import {Link} from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Register = ({setAuth}) => {
 
   const [inputs, setInputs] = useState({
@@ -19,7 +21,7 @@ const Register = ({setAuth}) => {
         e.preventDefault();
         try {
             const body = {username, email, password};
-            const response = await fetch("http://localhost:5000/auth/register", {
+            const response = await fetch(`${API_URL}/auth/register`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(body)

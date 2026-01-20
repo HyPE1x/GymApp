@@ -1,8 +1,9 @@
+const API_URL = process.env.REACT_APP_API_URL;
+
 export const newRoutine = async (routine_name, routine_split) => {
     try {
-        
         const body = { routine_name, routine_split };
-        const response = await fetch("http://localhost:5000/routines/create", {
+        const response = await fetch(`${API_URL}/routines/create`, {
             method: "POST",
             headers: {"Content-Type": "application/json", token: localStorage.token},
             body: JSON.stringify(body)
@@ -19,7 +20,7 @@ export const newRoutine = async (routine_name, routine_split) => {
 
 export const getRoutines = async() => {
     try {
-      const response = await fetch("http://localhost:5000/routines/", {
+      const response = await fetch(`${API_URL}/routines/`, {
         method: "GET",
         headers: {token: localStorage.token}
       });
@@ -34,7 +35,7 @@ export const getRoutines = async() => {
 
   export const deleteRoutine = async (routine_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/routines/delete/${routine_id}`, {
+      const response = await fetch(`${API_URL}/routines/delete/${routine_id}`, {
         method: "DELETE",
         headers: {token: localStorage.token}
       });
@@ -50,7 +51,7 @@ export const getRoutines = async() => {
   export const setActiveRoutine = async (routine_id) => {
     try {
       const body = { routine_id };
-      const response = await fetch("http://localhost:5000/routines/active/", {
+      const response = await fetch(`${API_URL}/routines/active/`, {
         method: "PUT",
         headers: {"Content-Type": "application/json", token: localStorage.token},
         body: JSON.stringify(body)
@@ -66,7 +67,7 @@ export const getRoutines = async() => {
 
   export const getAllExercises = async () => {
     try {
-        const response = await fetch("http://localhost:5000/routines/exercises/", {
+        const response = await fetch(`${API_URL}/routines/exercises/`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -82,7 +83,7 @@ export const getRoutines = async() => {
   export const getSpecificExercises = async (muscleGroups) => {
     try {
         const query = muscleGroups.join(",");
-        const response = await fetch(`http://localhost:5000/routines/exercises?muscleGroups=${query}`, {
+        const response = await fetch(`${API_URL}/routines/exercises?muscleGroups=${query}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -96,7 +97,7 @@ export const getRoutines = async() => {
 
   export const getExerciseByID = async (exercise_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/routines/exercises/${exercise_id}`, {
+      const response = await fetch(`${API_URL}/routines/exercises/${exercise_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
       });
@@ -111,7 +112,7 @@ export const getRoutines = async() => {
   export const addExerciseToDay = async (routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max) => {
     try {
       const body = {routine_id, day_name, exercise_id, sets, rep_range_min, rep_range_max};
-      const response = await fetch("http://localhost:5000/routines/day/add", {
+      const response = await fetch(`${API_URL}/routines/day/add`, {
             method: "POST",
             headers: {"Content-Type": "application/json", token: localStorage.token},
             body: JSON.stringify(body)
@@ -127,7 +128,7 @@ export const getRoutines = async() => {
   export const setCurrentDay = async (routine_id) => {
     try {
       const body = { routine_id };
-      const response = await fetch("http://localhost:5000/routines/day/current/", {
+      const response = await fetch(`${API_URL}/routines/day/current/`, {
         method: "PUT",
         headers: {"Content-Type": "application/json", token: localStorage.token},
         body: JSON.stringify(body)
@@ -143,7 +144,7 @@ export const getRoutines = async() => {
 
   export const getRoutineDay = async (routine_id, day_name) => {
     try {
-      const response = await fetch(`http://localhost:5000/routines/day/${routine_id}/${day_name}`, {
+      const response = await fetch(`${API_URL}/routines/day/${routine_id}/${day_name}`, {
             method: "GET",
             headers: {token: localStorage.token}
       });
@@ -159,7 +160,7 @@ export const getRoutines = async() => {
   export const deleteExerciseFromDay = async (routine_id, day_name, exercise_id) => {
     try {
       const body = { routine_id, day_name, exercise_id };
-      const response = await fetch(`http://localhost:5000/routines/day/delete`, {
+      const response = await fetch(`${API_URL}/routines/day/delete`, {
         method: "DELETE",
         headers: {"Content-Type": "application/json", token: localStorage.token},
         body: JSON.stringify(body)
@@ -177,7 +178,7 @@ export const getRoutines = async() => {
     try {
       //Get relevant rows from routine_exercises
       const dayNameEncoded = encodeURIComponent(day_name);
-      const response = await fetch(`http://localhost:5000/routines/${routine_id}/${dayNameEncoded}`, {
+      const response = await fetch(`${API_URL}/routines/${routine_id}/${dayNameEncoded}`, {
             method: "GET",
             headers: {token: localStorage.token}
       });
@@ -209,7 +210,7 @@ export const getRoutines = async() => {
   export const getSpecificDayExercise = async (routine_id, day_name, exercise_id) => {
     try {
       const dayNameEncoded = encodeURIComponent(day_name);
-      const response = await fetch(`http://localhost:5000/routines/${routine_id}/${dayNameEncoded}/${exercise_id}`, {
+      const response = await fetch(`${API_URL}/routines/${routine_id}/${dayNameEncoded}/${exercise_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
       });

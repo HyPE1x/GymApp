@@ -1,9 +1,9 @@
-import React, {useState, useEffect, use} from "react";
+import React, {useState, useEffect} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import {getExerciseByID} from "../api/routines";
 import { getSetsByExercise } from "../api/logging";
 import { FaTimes } from "react-icons/fa";
-import {Chart as ChartJS} from 'chart.js/auto';
+//import {Chart as ChartJS} from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
 

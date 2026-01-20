@@ -3,7 +3,15 @@ const app = express();
 const cors = require('cors');
 
 // Middleware
-app.use(cors());
+const allowedOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(",")
+  : ["http://localhost:3000"];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(express.json());
 
 //Routes
@@ -13,7 +21,7 @@ app.use('/routines', require('./src/routes/routines.js')); //routines related ro
 app.use('/logging', require('./src/routes/logging.js')); //workout log related routes
 
 
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
 });
 

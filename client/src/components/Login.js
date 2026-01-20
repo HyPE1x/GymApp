@@ -1,4 +1,7 @@
 import React, {Fragment, useState} from "react";
+
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Login = ({setAuth}) => {
 
   const [inputs, setInputs] = useState({
@@ -19,7 +22,7 @@ const Login = ({setAuth}) => {
 
             const body = {email, password};
 
-            const response = await fetch("http://localhost:5000/auth/login", {
+            const response = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(body)

@@ -1,7 +1,9 @@
+const API_URL = process.env.REACT_APP_API_URL;
+
 export const createSession = async (routine_day_id) => {
     try {
         const body = { routine_day_id };
-        const response = await fetch("http://localhost:5000/logging/session/create", {
+        const response = await fetch(`${API_URL}/logging/session/create`, {
             method: "POST",
             headers: {"Content-Type": "application/json", token: localStorage.token},
             body: JSON.stringify(body)
@@ -17,7 +19,7 @@ export const createSession = async (routine_day_id) => {
 
 export const getSession = async (session_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/session/id/${session_id}`, {
+        const response = await fetch(`${API_URL}/logging/session/id/${session_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -32,7 +34,7 @@ export const getSession = async (session_id) => {
 
 export const getSessionsByDay = async (routine_day_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/session/day/${routine_day_id}`, {
+        const response = await fetch(`${API_URL}/logging/session/day/${routine_day_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -47,7 +49,7 @@ export const getSessionsByDay = async (routine_day_id) => {
 
 export const endSession = async (session_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/session/end/${session_id}`, {
+        const response = await fetch(`${API_URL}/logging/session/end/${session_id}`, {
             method: "PUT",
             headers: {token: localStorage.token}
         });
@@ -63,7 +65,7 @@ export const endSession = async (session_id) => {
 export const createSet = async (session_id, routine_exercise_id, set_number, reps, weight) => {
     try {
         const body = { session_id, routine_exercise_id, set_number, reps, weight };
-        const response = await fetch("http://localhost:5000/logging/set/create", {
+        const response = await fetch(`${API_URL}/logging/set/create`, {
             method: "POST",
             headers: {"Content-Type": "application/json", token: localStorage.token},
             body: JSON.stringify(body)
@@ -79,7 +81,7 @@ export const createSet = async (session_id, routine_exercise_id, set_number, rep
 
 export const getSetsInSession = async (session_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/set/session/${session_id}`, {
+        const response = await fetch(`${API_URL}/logging/set/session/${session_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -94,7 +96,7 @@ export const getSetsInSession = async (session_id) => {
 
 export const getSetsByExercise = async (exercise_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/set/exercise/${exercise_id}`, {
+        const response = await fetch(`${API_URL}/logging/set/exercise/${exercise_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -109,7 +111,7 @@ export const getSetsByExercise = async (exercise_id) => {
 
 export const getSetByID = async (set_id) => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/set/${set_id}`, {
+        const response = await fetch(`${API_URL}/logging/set/${set_id}`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
@@ -124,7 +126,7 @@ export const getSetByID = async (set_id) => {
 
 export const getAllExercisesForUserSets = async () => {
     try {
-        const response = await fetch(`http://localhost:5000/logging/set/exercises`, {
+        const response = await fetch(`${API_URL}/logging/set/exercises`, {
             method: "GET",
             headers: {token: localStorage.token}
         });

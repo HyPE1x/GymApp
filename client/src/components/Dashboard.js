@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { getRoutines, deleteRoutine, setActiveRoutine } from "../api/routines";
 import { FaChevronDown, FaChevronUp, FaChartBar, FaPlus } from "react-icons/fa"; 
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Dashboard = ({setAuth}) => {
 
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ const Dashboard = ({setAuth}) => {
 
   async function getName() {
     try {
-        const response = await fetch("http://localhost:5000/dashboard/username", {
+        const response = await fetch(`${API_URL}/dashboard/username`, {
             method: "GET",
             headers: {token: localStorage.token}
         });
